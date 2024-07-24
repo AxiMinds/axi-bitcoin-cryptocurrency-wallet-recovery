@@ -36,7 +36,7 @@ check_and_install_dependencies() {
 # Function to run the wallet recovery tool
 run_wallet_recovery() {
     echo "Running the wallet recovery tool..."
-    python3 wallet_recovery_suite.py
+    python3 bitcoin-crypto-wallet-search.py
 }
 
 # Function to display the README
@@ -57,7 +57,7 @@ Wallet Recovery Suite
 4. Quit
 ========================================
 "
-    read -p "Enter your choice [1-4]: " choice
+    read -p "Enter your choice [1-4] or 'q' to quit: " choice
     case $choice in
         1)
             check_and_install_dependencies
@@ -71,7 +71,7 @@ Wallet Recovery Suite
             display_readme
             press_enter_to_continue
             ;;
-        4)
+        4|q|Q)
             echo "Exiting..."
             exit 0
             ;;
