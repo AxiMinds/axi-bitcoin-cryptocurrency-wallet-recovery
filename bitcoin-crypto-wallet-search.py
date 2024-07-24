@@ -104,8 +104,7 @@ def search_for_recovery_phrases_in_files(root_dir: Path, output_dir: Path) -> No
                 phrase_file = output_dir / f"recovery_phrases_{file_path.name}.txt"
                 with phrase_file.open('w') as file:
                     for phrase in recovery_phrases:
-                        file.write(f"{phrase}
-")
+                        file.write(f"{phrase}\n")
                 logging.info(
                     f"Potential recovery phrases found in {file_path}. "
                     f"Saved to {phrase_file}"
@@ -120,8 +119,7 @@ def main() -> None:
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print("
-Searching for wallets and recovery phrases. This may take a while...")
+    print("\nSearching for wallets and recovery phrases. This may take a while...")
     try:
         wallets = search_for_wallets(root_dir, output_dir)
         search_for_recovery_phrases_in_files(root_dir, output_dir)
@@ -131,8 +129,7 @@ Searching for wallets and recovery phrases. This may take a while...")
         return
 
     if wallets:
-        print(f"
-Found {len(wallets)} potential wallet files:")
+        print(f"\nFound {len(wallets)} potential wallet files:")
         for wallet in wallets:
             print(f"File: {wallet['name']}")
             print(f"Path: {wallet['path']}")
@@ -142,21 +139,17 @@ Found {len(wallets)} potential wallet files:")
             print(f"Reason: {wallet['reason']}")
             print("------------------------")
     else:
-        print("
-No potential wallet files found.")
+        print("\nNo potential wallet files found.")
 
-    print(f"
-Search complete. "
+    print(f"\nSearch complete. "
           f"Check {output_dir} for copied wallet files and potential recovery phrases.")
-    print("
-Donation addresses:")
+    print("\nDonation addresses:")
     print("Bitcoin (BTC): bc1qpx6afau939qyq75gqj9rd563hycqq9p49sm8cz")  
     print("Ethereum (ETH): 0xdB279940091d6358eFE9aFFc99500984B8B2F88E")
     print("Solana (SOL): AFwuzo3E8zJd2dg362QuqyL18j5GZgpgVvHzoiY7hSsF")
     print("Polygon (MATIC): 0xdB279940091d6358eFE9aFFc99500984B8B2F88E")
 
-    print("
-For advanced recovery assistance, contact: emergency@aximinds.com")
+    print("\nFor advanced recovery assistance, contact: emergency@aximinds.com")
 
 if __name__ == "__main__":
     main()
