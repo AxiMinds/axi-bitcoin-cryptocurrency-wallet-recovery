@@ -1,0 +1,6 @@
+# Core dependencies
+pathlib>=1.0.1
+typing-extensions>=4.1.1
+
+# Utility libraries
+python-magic>=0.4.27
