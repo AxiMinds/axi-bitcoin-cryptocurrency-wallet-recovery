@@ -28,14 +28,18 @@ WALLET_MAGIC_NUMBERS: Dict[str, bytes] = {
 RECOVERY_PHRASE_FORMATS: List[str] = [
     r'\b(?:\w{11}\s){23}\w{11}\b',  # 24-word recovery phrase
     r'\b(?:\w{12}\s){23}\w{12}\b',  # 24-word with 12-word chunks
-    r'\b(?:\w{3,}\s){11}\w{3,}\b'   # 12-word recovery phrase
+    r'\b(?:\w{3,}\s){11}\w{3,}\b'   # 12-word recovery phrase  
 ]
-EXCLUDED_FILE_EXTENSIONS = ['.exe', '.pyc', '.pem', '.pyd', '.dll', '.so']
+EXCLUDED_FILE_EXTENSIONS = ['.exe', '.pyc', '.pem', '.pyd', '.dll', '.so', '.py', '.txt', '.log']
 
 def is_potential_wallet_file(file_path: Path) -> Tuple[bool, str]:
     """Check if a file is a potential wallet based on name, extension, and magic numbers."""
     file_name = file_path.name.lower()
     file_ext = file_path.suffix
+
+    # Exclude the script file and log files
+    if file_name in ['bitcoin-crypto-wallet-search.py', 'wallet_recovery.log']:
+        return False, ""
 
     if file_ext in EXCLUDED_FILE_EXTENSIONS:
         return False, ""
@@ -53,7 +57,7 @@ def is_potential_wallet_file(file_path: Path) -> Tuple[bool, str]:
     except IOError as e:
         logger.error(f"Error reading file {file_path}: {e}")
     
-    return False, ""  # Always return a tuple (bool, str)
+    return False, ""
 
 def search_for_recovery_phrases(file_path: Path) -> List[str]:
     """Search for potential recovery phrases in a file."""
@@ -138,6 +142,8 @@ def main() -> None:
     else:
         print("\nNo potential wallet files found.")
     print(f"\nSearch complete. Check {output_dir} for copied wallet files and potential recovery phrases.")
+    print(f"Opening {output_dir} in the file explorer...")
+    os.startfile(output_dir)  # Open the output directory in the file explorer
 
 if __name__ == "__main__":
     main()
