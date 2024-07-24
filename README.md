@@ -16,6 +16,7 @@ A powerful Python-based tool designed to recover long-lost cryptocurrency wallet
 - [Donations](#donations)
 - [License](#license)
 - [Disclaimer](#disclaimer)
+- [Ethical Considerations](#ethical-considerations)
 
 ## Features
 - Advanced search algorithms for wallet files using filenames, extensions, and magic numbers
@@ -36,23 +37,26 @@ A powerful Python-based tool designed to recover long-lost cryptocurrency wallet
    ```
    cd crypto-wallet-recovery
    ```
-4. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
 
 ## Usage
-1. Run the script:
+1. Run the `run.sh` script:
    ```
-   python wallet_recovery_suite.py
+   bash run.sh
    ```
-2. Enter the root directory to search when prompted.
-3. Specify an output directory for recovered files.
+2. Choose an option from the menu:
+   - `Check and Install Dependencies`: This option checks if Python and virtualenv are installed, creates a virtual environment if it doesn't exist, activates it, and installs missing requirements.
+   - `Run Wallet Recovery`: This option runs the wallet recovery tool.
+   - `Display README`: This option displays the README file.
+   - `Quit`: This option exits the script.
+
+3. Follow the prompts to enter the root directory to search and the output directory for recovered files.
 4. Review console output and check the output directory for results.
 
 ### Quick Start Example
-```python
-python wallet_recovery_suite.py
+```bash
+bash run.sh
+# Choose "Check and Install Dependencies" from the menu
+# Choose "Run Wallet Recovery" from the menu
 Enter the root directory to search for wallets: /path/to/search
 Enter the output directory to copy wallet files: /path/to/output
 ```
@@ -70,7 +74,7 @@ Each wallet type is identified using tailored detection methods, including file 
 1. Expand wallet support (e.g., Ripple, Cardano, Polkadot)
 2. Enhance recovery phrase detection with AI-assisted algorithms
 3. Develop a user-friendly GUI
-4. Implement multi-threading for improved performance
+4. Implement multi-threading for improved performance 
 5. Add customizable search options (file types, size limits, date ranges)
 
 ## Contributing
@@ -93,17 +97,24 @@ If this tool has helped you recover lost funds or you'd like to support its deve
 
 To share your success story or for additional recovery assistance, please contact us at emergency@aximinds.com.
 
-## License
+## License  
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Disclaimer
 This tool is provided for educational and recovery purposes only. Exercise extreme caution when dealing with cryptocurrency wallets and private keys. Ensure you have the legal right to access and search the drives you're analyzing. AxiMinds is not responsible for any loss of funds or legal issues arising from the use of this tool.
 
+## Ethical Considerations
+Please be aware that searching hard drives for cryptocurrency wallets without the clear consent of the owner raises serious ethical concerns around privacy and ownership rights. This tool should only be used for legitimate data recovery purposes with proper authorization from the data owner. 
+
+We strongly caution against using or promoting this tool for any unethical or illegal activities. If your goal is authorized data recovery, we recommend working with reputable data recovery professionals who adhere to strict ethical guidelines.
+
+As developers, our role is to create technology responsibly and promote its ethical use. We cannot condone or assist in any misuse of this tool. Please use this software only for its intended purpose and with full respect for individual privacy and property rights.
+
 ---
 
 Developed by AxiMinds using advanced AI techniques, combining multiple models for optimal performance:
 
-- Groq.com Llama-3.1 70B
+- Groq.com Llama-3.1 70B  
 - Anthropic Claude-3.5-Sonnet & Claude-3-Opus
 - Huggingface HuggingChat Llama-3.1 405B
 - OpenAI GPT-4
