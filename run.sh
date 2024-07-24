@@ -52,7 +52,7 @@ display_menu() {
 Wallet Recovery Suite
 ========================================
 1. Check and Install Dependencies
-2. Run Wallet Recovery
+2. Run Wallet Recovery  
 3. Display README
 4. Quit
 ========================================
@@ -85,7 +85,7 @@ Wallet Recovery Suite
 # Function to wait for user input before continuing
 press_enter_to_continue() {
     read -p "Press Enter to continue..."
-    clear
+    echo ""
 }
 
 # Main script
