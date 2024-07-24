@@ -1,4 +1,4 @@
-# axi-bitcoin-cryptocurrency-wallet-recovery
+# AxiMinds - Bitcoin and Cryptocurrency Wallet Recovery Suite
 The AxiMinds Bitcoin Cryptocurrency Recovery tool was written to help my brother find long-lost bitcoin and other cryptocurrency wallets from old hard drives.
 
 If you find this code useful, please donate.  If you need additional assistance finding and recovering your bitcoin or cryptocurrency wallets or other 
