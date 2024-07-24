@@ -31,7 +31,7 @@ A powerful Python-based tool designed to recover long-lost cryptocurrency wallet
 1. Ensure Python 3.6+ is installed on your system.
 2. Clone the repository:
    ```
-   git clone https://github.com/aximinds/crypto-wallet-recovery.git
+   git clone https://github.com/aximinds/axi-bitcoin-cryptocurrency-wallet-recovery.git
    ```
 3. Navigate to the project directory:
    ```
