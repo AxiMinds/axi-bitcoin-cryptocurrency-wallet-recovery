@@ -35,7 +35,7 @@ A powerful Python-based tool designed to recover long-lost cryptocurrency wallet
    ```
 3. Navigate to the project directory:
    ```
-   cd crypto-wallet-recovery
+   cd axi-bitcoin-cryptocurrency-wallet-recovery
    ```
 
 ## Usage
