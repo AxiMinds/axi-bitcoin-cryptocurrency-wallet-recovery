@@ -27,12 +27,16 @@ RECOVERY_PHRASE_FORMATS: List[str] = [
     r'\b(?:\w{12}\s){23}\w{12}\b',  # 24-word with 12-word chunks
     r'\b(?:\w{3,}\s){11}\w{3,}\b'   # 12-word recovery phrase  
 ]
+EXCLUDED_FILE_EXTENSIONS = ['.exe', '.pyc', '.pem', '.pyd', '.dll', '.so']
 
 def is_potential_wallet_file(file_path: Path) -> Tuple[bool, str]:
     """Check if a file is a potential wallet based on name, extension, 
     and magic numbers."""
     file_name = file_path.name.lower()
     file_ext = file_path.suffix
+
+    if file_ext in EXCLUDED_FILE_EXTENSIONS:
+        return False, ""
 
     if any(ext in file_ext for ext in WALLET_EXTENSIONS) or \
         any(name in file_name for name in WALLET_NAMES):
@@ -51,6 +55,9 @@ def is_potential_wallet_file(file_path: Path) -> Tuple[bool, str]:
 
 def search_for_recovery_phrases(file_path: Path) -> List[str]:
     """Search for potential recovery phrases in a file."""
+    if file_path.suffix in EXCLUDED_FILE_EXTENSIONS:
+        return []
+
     try:
         with file_path.open('r', errors='ignore') as file:
             content = file.read()
@@ -75,17 +82,17 @@ def search_for_wallets(root_dir: Path, output_dir: Path) -> List[Dict[str, str]]
     """Search for potential wallet files in the given directory."""
     wallets = []
     for file_path in root_dir.rglob('*'):
-        if file_path.is_file():
+        if file_path.is_file() and output_dir not in file_path.parents:
             is_wallet, reason = is_potential_wallet_file(file_path)
             
             if is_wallet:
                 wallet_info = {
                     'path': str(file_path),
                     'name': file_path.name,
-                   'size': file_path.stat().st_size,
+                    'size': file_path.stat().st_size,
                     'created': datetime.fromtimestamp(file_path.stat().st_ctime),
-                   'modified': datetime.fromtimestamp(file_path.stat().st_mtime),
-                   'reason': reason
+                    'modified': datetime.fromtimestamp(file_path.stat().st_mtime),
+                    'reason': reason
                 }
                 wallets.append(wallet_info)
                 logging.info(f"Potential wallet found: {file_path}")
@@ -97,18 +104,20 @@ def search_for_wallets(root_dir: Path, output_dir: Path) -> List[Dict[str, str]]
 
 def search_for_recovery_phrases_in_files(root_dir: Path, output_dir: Path) -> None:
     """Search for potential recovery phrases in files in the given directory."""
+    recovery_phrase_files = set()
+
     for file_path in root_dir.rglob('*'):
-        if file_path.is_file():
+        if file_path.is_file() and output_dir not in file_path.parents:
             recovery_phrases = search_for_recovery_phrases(file_path)
             if recovery_phrases:
                 phrase_file = output_dir / f"recovery_phrases_{file_path.name}.txt"
+                recovery_phrase_files.add(str(phrase_file))
                 with phrase_file.open('w') as file:
                     for phrase in recovery_phrases:
                         file.write(f"{phrase}\n")
-                logging.info(
-                    f"Potential recovery phrases found in {file_path}. "
-                    f"Saved to {phrase_file}"
-                )
+
+    logging.info(f"Potential recovery phrases found in {len(recovery_phrase_files)} files.")
+    logging.info(f"Saved recovery phrase files to {output_dir}")
 
 def main() -> None:
     print("Cryptocurrency Wallet Recovery Suite")
@@ -128,9 +137,11 @@ def main() -> None:
         print("An error occurred. Please check the logs for details.")
         return
 
-    if wallets:
-        print(f"\nFound {len(wallets)} potential wallet files:")
-        for wallet in wallets:
+    unique_wallets = {wallet['path']: wallet for wallet in wallets}.values()
+
+    if unique_wallets:
+        print(f"\nFound {len(unique_wallets)} unique potential wallet files:")
+        for wallet in unique_wallets:
             print(f"File: {wallet['name']}")
             print(f"Path: {wallet['path']}")
             print(f"Size: {wallet['size']} bytes")
@@ -144,7 +155,7 @@ def main() -> None:
     print(f"\nSearch complete. "
           f"Check {output_dir} for copied wallet files and potential recovery phrases.")
     print("\nDonation addresses:")
-    print("Bitcoin (BTC): bc1qpx6afau939qyq75gqj9rd563hycqq9p49sm8cz")  
+    print("Bitcoin (BTC): bc1qpx6afau939qyq75gqj9rd563hycqq9p49sm8cz")
     print("Ethereum (ETH): 0xdB279940091d6358eFE9aFFc99500984B8B2F88E")
     print("Solana (SOL): AFwuzo3E8zJd2dg362QuqyL18j5GZgpgVvHzoiY7hSsF")
     print("Polygon (MATIC): 0xdB279940091d6358eFE9aFFc99500984B8B2F88E")
