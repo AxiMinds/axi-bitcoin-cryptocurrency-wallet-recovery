@@ -7,10 +7,13 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    handlers=[
+                        logging.FileHandler("wallet_recovery.log"),
+                        logging.StreamHandler()
+                    ])
+logger = logging.getLogger(__name__)
 
 # Constant values
 WALLET_EXTENSIONS = ['.dat', '.wallet', '.key', '.priv', '.pub', '.json', '.keystore']
@@ -25,13 +28,12 @@ WALLET_MAGIC_NUMBERS: Dict[str, bytes] = {
 RECOVERY_PHRASE_FORMATS: List[str] = [
     r'\b(?:\w{11}\s){23}\w{11}\b',  # 24-word recovery phrase
     r'\b(?:\w{12}\s){23}\w{12}\b',  # 24-word with 12-word chunks
-    r'\b(?:\w{3,}\s){11}\w{3,}\b'   # 12-word recovery phrase  
+    r'\b(?:\w{3,}\s){11}\w{3,}\b'   # 12-word recovery phrase
 ]
 EXCLUDED_FILE_EXTENSIONS = ['.exe', '.pyc', '.pem', '.pyd', '.dll', '.so']
 
 def is_potential_wallet_file(file_path: Path) -> Tuple[bool, str]:
-    """Check if a file is a potential wallet based on name, extension, 
-    and magic numbers."""
+    """Check if a file is a potential wallet based on name, extension, and magic numbers."""
     file_name = file_path.name.lower()
     file_ext = file_path.suffix
 
@@ -39,7 +41,7 @@ def is_potential_wallet_file(file_path: Path) -> Tuple[bool, str]:
         return False, ""
 
     if any(ext in file_ext for ext in WALLET_EXTENSIONS) or \
-        any(name in file_name for name in WALLET_NAMES):
+       any(name in file_name for name in WALLET_NAMES):
         return True, "Name/Extension match"
 
     try:
@@ -48,10 +50,9 @@ def is_potential_wallet_file(file_path: Path) -> Tuple[bool, str]:
             for wallet_type, magic_number in WALLET_MAGIC_NUMBERS.items():
                 if file_start.startswith(magic_number):
                     return True, f"Magic number match: {wallet_type}"
-    except Exception as e:
-        logging.error(f"Error reading file {file_path}: {e}")
-
-    return False, ""
+    except IOError as e:
+        logger.error(f"Error reading file {file_path}: {e}")
+        return False, ""
 
 def search_for_recovery_phrases(file_path: Path) -> List[str]:
     """Search for potential recovery phrases in a file."""
@@ -66,17 +67,17 @@ def search_for_recovery_phrases(file_path: Path) -> List[str]:
                 matches = re.findall(pattern, content)
                 phrases.extend(matches)
             return phrases
-    except Exception as e:
-        logging.error(f"Error reading file {file_path}: {e}")
+    except IOError as e:
+        logger.error(f"Error reading file {file_path}: {e}")
         return []
 
 def copy_file(src: Path, dst: Path) -> None:
     """Copy a file from source to destination."""
     try:
         shutil.copy2(src, dst)
-        logging.info(f"Copied {src} to {dst}")
-    except Exception as e:
-        logging.error(f"Error copying {src} to {dst}: {e}")
+        logger.info(f"Copied {src} to {dst}")
+    except IOError as e:
+        logger.error(f"Error copying {src} to {dst}: {e}")
 
 def search_for_wallets(root_dir: Path, output_dir: Path) -> List[Dict[str, str]]:
     """Search for potential wallet files in the given directory."""
@@ -84,7 +85,6 @@ def search_for_wallets(root_dir: Path, output_dir: Path) -> List[Dict[str, str]]
     for file_path in root_dir.rglob('*'):
         if file_path.is_file() and output_dir not in file_path.parents:
             is_wallet, reason = is_potential_wallet_file(file_path)
-            
             if is_wallet:
                 wallet_info = {
                     'path': str(file_path),
@@ -95,17 +95,13 @@ def search_for_wallets(root_dir: Path, output_dir: Path) -> List[Dict[str, str]]
                     'reason': reason
                 }
                 wallets.append(wallet_info)
-                logging.info(f"Potential wallet found: {file_path}")
-                
-                # Copy the wallet file to the output directory
+                logger.info(f"Potential wallet found: {file_path}")
                 copy_file(file_path, output_dir / file_path.name)
-
     return wallets
 
 def search_for_recovery_phrases_in_files(root_dir: Path, output_dir: Path) -> None:
     """Search for potential recovery phrases in files in the given directory."""
     recovery_phrase_files = set()
-
     for file_path in root_dir.rglob('*'):
         if file_path.is_file() and output_dir not in file_path.parents:
             recovery_phrases = search_for_recovery_phrases(file_path)
@@ -115,33 +111,22 @@ def search_for_recovery_phrases_in_files(root_dir: Path, output_dir: Path) -> No
                 with phrase_file.open('w') as file:
                     for phrase in recovery_phrases:
                         file.write(f"{phrase}\n")
-
-    logging.info(f"Potential recovery phrases found in {len(recovery_phrase_files)} files.")
-    logging.info(f"Saved recovery phrase files to {output_dir}")
+    logger.info(f"Potential recovery phrases found in {len(recovery_phrase_files)} files.")
+    logger.info(f"Saved recovery phrase files to {output_dir}")
 
 def main() -> None:
+    """Main function to run the wallet recovery suite."""
     print("Cryptocurrency Wallet Recovery Suite")
     print("====================================")
-    
     root_dir = Path(input("Enter the root directory to search for wallets: "))
     output_dir = Path(input("Enter the output directory to copy wallet files: "))
-
     output_dir.mkdir(parents=True, exist_ok=True)
-
     print("\nSearching for wallets and recovery phrases. This may take a while...")
-    try:
-        wallets = search_for_wallets(root_dir, output_dir)
-        search_for_recovery_phrases_in_files(root_dir, output_dir)
-    except Exception as e:
-        logging.error(f"An error occurred during the search: {e}")
-        print("An error occurred. Please check the logs for details.")
-        return
-
-    unique_wallets = {wallet['path']: wallet for wallet in wallets}.values()
-
-    if unique_wallets:
-        print(f"\nFound {len(unique_wallets)} unique potential wallet files:")
-        for wallet in unique_wallets:
+    wallets = search_for_wallets(root_dir, output_dir)
+    search_for_recovery_phrases_in_files(root_dir, output_dir)
+    if wallets:
+        print(f"\nFound {len(wallets)} unique potential wallet files:")
+        for wallet in wallets:
             print(f"File: {wallet['name']}")
             print(f"Path: {wallet['path']}")
             print(f"Size: {wallet['size']} bytes")
@@ -151,16 +136,7 @@ def main() -> None:
             print("------------------------")
     else:
         print("\nNo potential wallet files found.")
-
-    print(f"\nSearch complete. "
-          f"Check {output_dir} for copied wallet files and potential recovery phrases.")
-    print("\nDonation addresses:")
-    print("Bitcoin (BTC): bc1qpx6afau939qyq75gqj9rd563hycqq9p49sm8cz")
-    print("Ethereum (ETH): 0xdB279940091d6358eFE9aFFc99500984B8B2F88E")
-    print("Solana (SOL): AFwuzo3E8zJd2dg362QuqyL18j5GZgpgVvHzoiY7hSsF")
-    print("Polygon (MATIC): 0xdB279940091d6358eFE9aFFc99500984B8B2F88E")
-
-    print("\nFor advanced recovery assistance, contact: emergency@aximinds.com")
+    print(f"\nSearch complete. Check {output_dir} for copied wallet files and potential recovery phrases.")
 
 if __name__ == "__main__":
     main()
