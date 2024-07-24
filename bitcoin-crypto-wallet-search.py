@@ -52,7 +52,8 @@ def is_potential_wallet_file(file_path: Path) -> Tuple[bool, str]:
                     return True, f"Magic number match: {wallet_type}"
     except IOError as e:
         logger.error(f"Error reading file {file_path}: {e}")
-        return False, ""
+    
+    return False, ""  # Always return a tuple (bool, str)
 
 def search_for_recovery_phrases(file_path: Path) -> List[str]:
     """Search for potential recovery phrases in a file."""
